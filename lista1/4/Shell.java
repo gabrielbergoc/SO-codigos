@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 public class Shell {
@@ -18,20 +16,11 @@ public class Shell {
 
             var childArgs = input.split(" ");
             var processBuilder = new ProcessBuilder(childArgs);
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             try {
                 var process = processBuilder.start();
                 process.waitFor();
-
-                String line = null;
-                var iStream = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while ((line = iStream.readLine()) != null) {
-                    System.out.print(line);
-                }
-                var eStream = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                while ((line = eStream.readLine()) != null) {
-                    System.out.print(line);
-                }
             } catch (IOException | InterruptedException e) {
                 System.out.println(e.toString());
             }
