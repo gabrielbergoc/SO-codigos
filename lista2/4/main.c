@@ -6,12 +6,6 @@
 #include <string.h>
 
 
-typedef struct {
-    int x;
-    bool xIsPrime;
-} thread_data;
-
-
 int isPrime(int x)
 {
     if (x < 2)
@@ -30,9 +24,17 @@ int isPrime(int x)
     return true;
 }
 
+
+char isPrimeStr[] = "is prime";
+char isNotPrimeStr[] = "is not prime";
+
 void *thread(void * args) {
-    thread_data *data = (thread_data *) args;
-    data->xIsPrime = isPrime(data->x);
+    int *x = (int *) args;
+    
+    bool xIsPrime = isPrime(*x);
+
+    printf("%d %s\n", *x, xIsPrime ? isPrimeStr : isNotPrimeStr);
+
     return NULL;
 }
 
@@ -46,12 +48,12 @@ int main(int argc, char **argv)
 
     int nThreads = argc - 1;
     pthread_t *threads = (pthread_t *) malloc(sizeof(pthread_t) * nThreads);
-    thread_data **data = (thread_data **) malloc(sizeof(thread_data *) * nThreads);
+    int **nums = (int **) malloc(sizeof(int *) * nThreads);
     for (int i = 0; i < nThreads; i++) {
-        data[i] = (thread_data *) malloc(sizeof(thread_data));
-        data[i]->x = atoi(argv[i + 1]);
+        nums[i] = (int *) malloc(sizeof(int));
+        *nums[i] = atoi(argv[i + 1]);
 
-        int created = pthread_create(&threads[i], NULL, thread, data[i]);
+        int created = pthread_create(&threads[i], NULL, thread, nums[i]);
 
         if (created != 0) {
             printf("Error creating thread #%d\n", i);
@@ -67,17 +69,9 @@ int main(int argc, char **argv)
             exit(joined);
         }
 
-        char xIsPrime[20];
-        if (data[i]->xIsPrime) {
-            strcpy(xIsPrime, "is prime");
-        } else {
-            strcpy(xIsPrime, "is not prime");
-        }
-
-        printf("%d %s\n", i, xIsPrime);
+        free(nums[i]);
     }
 
-
     free(threads);
-    free(data);
+    free(nums);
 }
