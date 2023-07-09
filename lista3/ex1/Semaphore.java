@@ -12,7 +12,7 @@ public class Semaphore {
     public synchronized void down() {
         while (count <= 0) {
             try {
-                Thread.sleep(1);
+                wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -21,8 +21,9 @@ public class Semaphore {
         count--;
     }
 
-    public void up() {
+    public synchronized void up() {
         count++;
+        notify();
     }
 
     public static void main(String[] args) {
